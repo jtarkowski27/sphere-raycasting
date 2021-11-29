@@ -441,8 +441,8 @@ void setup_opengl(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    std::cerr << "Rendering a " << nx << "x" << ny;
-    std::cerr << "in " << tx << "x" << ty << " blocks.\n";
+    std::cerr << "Raycasting a scene of " << SPHERES_COUNT << " spheres and " << LIGHTS_COUNT << " lights with " << nx << "x" << ny;
+    std::cerr << " rays in " << tx << "x" << ty << " blocks.\n";
 
     second_start = clock();
 
