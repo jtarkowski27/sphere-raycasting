@@ -20,6 +20,10 @@ Following dependencies were used in this project:
 ### Linux
 The Linux samples are built using makefiles. To use the makefiles, change the current directory to the sample directory you wish to build, and run make:
 ```
-$ cd <sample_dir>
+$ cd sphere-raycasting
 $ make
+```
+After succesfull compilation you should be able to run the program with:
+```
+$ ./raycasting
 ```
