@@ -31,7 +31,7 @@ By default program will perform a pararell raycasting of scene with 1000 spheres
 ```
 $ ./raycasting -s 2000 -l 300
 ```
-It is possible to execute raycasting algorithm purely on CPU. In order to do so you gonna need to add `-cpu` argument to run command.
+It is possible to execute raycasting algorithm purely on CPU. In order to do so you need to add `-cpu` argument to run command.
 ```
 $ ./raycasting -cpu
 ```
