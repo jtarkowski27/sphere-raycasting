@@ -10,11 +10,11 @@ Implementation was based on [Ray Tracing in One Weekend](https://raytracing.gith
 
 ## Dependencies
 
-You need to install:
+Following dependencies were used in this project:
 
-* CUDA SDK
-* OpenGL
-* CMake 3.0+
+* CUDA SDK 10.1
+* OpenGL 4.6.0
+* GNU Make 4.2.1
 
 ## Build and Run
 ### Linux
