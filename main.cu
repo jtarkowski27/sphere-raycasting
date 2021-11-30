@@ -40,13 +40,10 @@
 #endif
 #endif
 
-#ifdef RENDER_GPU
-#define WIDTH 1100
-#define HEIGHT 700
-#else
-#define WIDTH 200
-#define HEIGHT 100
-#endif
+int WIDTH = 1100;
+int HEIGHT = 700;
+
+bool GPU_RENDER_ENABLED = true;
 
 GLubyte *h_bitmap;
 GLubyte *d_bitmap;
@@ -322,20 +319,26 @@ void render_scene()
     dim3 threads(tx, ty);
 
     start = clock();
-#ifdef RENDER_GPU
-    render_gpu<<<blocks, threads>>>(d_bitmap, nx, ny, d_scene);
-    checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaDeviceSynchronize());
-#else
-    render_cpu(h_bitmap, nx, ny, h_scene);
-#endif
+    if (GPU_RENDER_ENABLED)
+    {
+        render_gpu<<<blocks, threads>>>(d_bitmap, nx, ny, d_scene);
+        checkCudaErrors(cudaGetLastError());
+        checkCudaErrors(cudaDeviceSynchronize());
+    }
+    else
+    {
+        render_cpu(h_bitmap, nx, ny, h_scene);
+    }
+
     stop = clock();
     raycasting_time = ((double)(stop - start)) / CLOCKS_PER_SEC;
 
     start = clock();
-#ifdef RENDER_GPU
-    memcpy_device_to_host();
-#endif
+    if (GPU_RENDER_ENABLED)
+    {
+        memcpy_device_to_host();
+    }
+
     stop = clock();
     gpu_to_cpu_copying_time = ((double)(stop - start)) / CLOCKS_PER_SEC;
 }
@@ -363,13 +366,16 @@ void computeFPS()
         first_second = 0;
         second_start = clock();
 
-#ifdef RENDER_GPU
-        sprintf(fps, "Spheres Raycasting: %3.2f fps (Raycasting: %.4f s, CPU->GPU copying: %.6f s, GPU->CPU copying: %.6f s)",
-                avgFPS, raycasting_time, cpu_to_gpu_copying_time, gpu_to_cpu_copying_time);
-#else
-        sprintf(fps, "Spheres Raycasting: %3.2f fps (Raycasting: %.4f s)",
-                avgFPS, raycasting_time);
-#endif
+        if (GPU_RENDER_ENABLED)
+        {
+            sprintf(fps, "Spheres Raycasting: %.2f fps (Raycasting: %.4f s, CPU->GPU copying: %.6f s, GPU->CPU copying: %.6f s)",
+                    avgFPS, raycasting_time, cpu_to_gpu_copying_time, gpu_to_cpu_copying_time);
+        }
+        else
+        {
+            sprintf(fps, "Spheres Raycasting: %.2f fps (Raycasting: %.4f s)",
+                    avgFPS, raycasting_time);
+        }
 
         std::cout << fps << "\n";
     }
@@ -399,14 +405,15 @@ void timer(int)
     prev_angle_x = angle_x;
     prev_angle_y = angle_y;
 
-    render_scene();
+    if (GPU_RENDER_ENABLED)
+    {
+        start = clock();
+        memcpy_host_to_device();
+        stop = clock();
+        cpu_to_gpu_copying_time = ((double)(stop - start)) / CLOCKS_PER_SEC;
+    }
 
-#ifdef RENDER_GPU
-    start = clock();
-    memcpy_host_to_device();
-    stop = clock();
-    cpu_to_gpu_copying_time = ((double)(stop - start)) / CLOCKS_PER_SEC;
-#endif
+    render_scene();
 
     sdkStopTimer(&fps_timer);
     computeFPS();
@@ -454,8 +461,62 @@ void setup_opengl(int argc, char *argv[])
     glutMainLoop();
 }
 
+// Parsing command-line arguments
+void main_parameters(int argc, char *argv[])
+{
+    char spheres_str[] = "-s\0";
+    char lights_str[] = "-l\0";
+    char cpu_str[] = "-cpu\0";
+
+    int lights_count = -1;
+    int spheres_count = -1;
+
+    for (int i = 0; i < argc; i++)
+    {
+        if (strncmp(argv[i], cpu_str, sizeof(cpu_str)) == 0)
+        {
+            GPU_RENDER_ENABLED = false;
+
+            LIGHTS_COUNT = min(10, LIGHTS_COUNT);
+            SPHERES_COUNT = min(100, SPHERES_COUNT);
+
+            WIDTH = 200;
+            HEIGHT = 100;
+        }
+        if (strncmp(argv[i], lights_str, sizeof(lights_str)) == 0 && i < argc - 1)
+        {
+            lights_count = atoi(argv[i + 1]);
+        }
+        if (strncmp(argv[i], spheres_str, sizeof(spheres_str)) == 0 && i < argc - 1)
+        {
+            spheres_count = atoi(argv[i + 1]);
+        }
+    }
+
+    if (lights_count > -1)
+    {
+        LIGHTS_COUNT = lights_count;
+    }
+
+    if (spheres_count > -1)
+    {
+        SPHERES_COUNT = spheres_count;
+    }
+
+    nx = WIDTH;
+    ny = HEIGHT;
+
+    num_pixels = nx * ny;
+    bitmap_size = num_pixels * sizeof(GLubyte);
+
+    resolution_horizontal = WIDTH;
+    resolution_vertical = HEIGHT;
+}
+
 int main(int argc, char *argv[])
 {
+    main_parameters(argc, argv);
+
     std::cerr << "Raycasting a scene of " << SPHERES_COUNT << " spheres and " << LIGHTS_COUNT << " lights with " << nx << "x" << ny;
     std::cerr << " rays in " << tx << "x" << ty << " blocks.\n";
 
