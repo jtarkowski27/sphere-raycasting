@@ -20,7 +20,7 @@ __host__ __device__ void make_pixel(int pixel_index, int r, int g, int b, unsign
 }
 
 // Calculates color to be displayed at the point of intersection
-__host__ __device__ float3 calc_point_light(s_lights &lights, s_hit_record &rec, s_spheres &spheres)
+__host__ __device__ float3 calc_phong_reflection(s_lights &lights, s_hit_record &rec, s_spheres &spheres)
 {
     float3 ia = make_float3(spheres.color.r[rec.i], spheres.color.g[rec.i], spheres.color.b[rec.i]);
     float3 im = make_float3(1.0f, 1.0f, 1.0f);
@@ -81,7 +81,7 @@ __host__ __device__ float3 color(s_ray &r, s_scene scene)
     s_hit_record rec;
     if (hit(cur_ray, scene.spheres, 0.001f, FLT_MAX, rec))
     {
-        return calc_point_light(scene.lights, rec, scene.spheres);
+        return calc_phong_reflection(scene.lights, rec, scene.spheres);
     }
     else
     {
