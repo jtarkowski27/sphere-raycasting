@@ -4,5 +4,11 @@ This project contains the source code for basic 3D [ray caster](https://pl.wikip
 
 ![Window screenshot](window.png)
 
+## Install
+
 ## Description
 Implementation was based on [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) series and [Accelerated Ray Tracing in One Weekend in CUDA](https://developer.nvidia.com/blog/accelerated-ray-tracing-cuda/) from NVIDIA's Developer Blog.
+
+## Prerequisites
+### Linux
+The Linux samples are built using makefiles. To use the makefiles, change the current directory to the sample directory you wish to build, and run make:
