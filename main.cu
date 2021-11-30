@@ -58,7 +58,7 @@ int num_pixels = nx * ny;
 size_t bitmap_size = num_pixels * sizeof(GLubyte);
 
 int SPHERES_COUNT = 1000;
-int LIGHTS_COUNT = 100;
+int LIGHTS_COUNT = 200;
 
 s_scene d_scene;
 s_scene h_scene;
