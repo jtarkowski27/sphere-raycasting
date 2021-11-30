@@ -27,7 +27,7 @@ After succesfull compilation you should be able to run the program by simply cal
 ```
 $ ./raycasting
 ```
-By default programm will perform a pararell raycasting of scene with 1000 spheres and 200 light sources. If you want to specify certain parameters you need to add command-line arguments. For example command below will run a simulation of raycasting a scene with 2000 spheres and 300 light sources.
+By default program will perform a pararell raycasting of scene with 1000 spheres and 200 light sources. If you want to specify certain parameters you need to add command-line arguments. For example command below will run a simulation of raycasting a scene with 2000 spheres and 300 light sources.
 ```
 $ ./raycasting -s 2000 -l 300
 ```
