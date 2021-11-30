@@ -41,8 +41,8 @@
 #endif
 
 #ifdef RENDER_GPU
-#define WIDTH 1300
-#define HEIGHT 800
+#define WIDTH 1100
+#define HEIGHT 700
 #else
 #define WIDTH 200
 #define HEIGHT 100
@@ -61,7 +61,7 @@ int num_pixels = nx * ny;
 size_t bitmap_size = num_pixels * sizeof(GLubyte);
 
 int SPHERES_COUNT = 1000;
-int LIGHTS_COUNT = 200;
+int LIGHTS_COUNT = 100;
 
 s_scene d_scene;
 s_scene h_scene;
@@ -101,6 +101,7 @@ double first_second = 2;
 
 char fps[512];
 
+// Return radom float from range
 float rand_float(float min, float max)
 {
     float random = ((float)rand()) / (float)RAND_MAX;
@@ -109,6 +110,7 @@ float rand_float(float min, float max)
     return min + r;
 }
 
+// glutDisplayFunc() event handler
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -117,6 +119,7 @@ void display()
     glutSwapBuffers();
 }
 
+// Generate one random 3D point and assign its coordinates at index i
 void assign_position(s_positions &positions, int i)
 {
     float x = rand_float(-150, 150);
@@ -134,6 +137,7 @@ void assign_position(s_positions &positions, int i)
     positions.z[i] = rand_float(-100, 100);
 }
 
+// Generate random parameters of spheres and lights
 void randomize_scene_variables()
 {
     d_scene.camera.origin = make_float3(-1000, 600, 700);
@@ -163,6 +167,7 @@ void randomize_scene_variables()
     }
 }
 
+// Rotate list of positions
 void rotate_objects(s_positions *positions, int n, float rotate)
 {
     for (int i = 0; i < n; i++)
@@ -180,11 +185,13 @@ void rotate_objects(s_positions *positions, int n, float rotate)
     }
 }
 
+// Memcpy GPU->CPU
 void memcpy_device_to_host()
 {
     checkCudaErrors(cudaMemcpy(h_bitmap, d_bitmap, bitmap_size, cudaMemcpyDeviceToHost));
 }
 
+// Memcpy CPU->GPU
 void memcpy_host_to_device()
 {
     checkCudaErrors(cudaMemcpy(d_scene.spheres.r, h_scene.spheres.r, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
@@ -202,6 +209,7 @@ void memcpy_host_to_device()
     checkCudaErrors(cudaMemcpy(d_scene.lights.pos.z, h_scene.lights.pos.z, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
 }
 
+// Allocate memory for bitmap
 void malloc_bitmap()
 {
     num_pixels = nx * ny;
@@ -213,6 +221,7 @@ void malloc_bitmap()
     checkCudaErrors(cudaMallocManaged((void **)&d_bitmap, bitmap_size));
 }
 
+// Allocate memory for scene
 void malloc_scene()
 {
     sdkCreateTimer(&fps_timer);
@@ -256,6 +265,7 @@ void malloc_scene()
     checkCudaErrors(cudaMalloc((void **)&d_scene.lights.pos.z, LIGHTS_COUNT * sizeof(float)));
 }
 
+// Free allocated space
 void free_scene()
 {
     sdkDeleteTimer(&fps_timer);
@@ -295,6 +305,7 @@ void free_scene()
     free(h_bitmap);
 }
 
+// TODO event of window resizing
 void reshape(int w, int h)
 {
     glViewport(0, 0, (GLsizei)w, (GLsizei)h);
@@ -304,6 +315,7 @@ void reshape(int w, int h)
     glMatrixMode(GL_MODELVIEW);
 }
 
+// Execute Raycasting algorithm and read-write calculated values
 void render_scene()
 {
     dim3 blocks(nx / tx + 1, ny / ty + 1);
@@ -328,6 +340,7 @@ void render_scene()
     gpu_to_cpu_copying_time = ((double)(stop - start)) / CLOCKS_PER_SEC;
 }
 
+// Display measured times of algorithm execution
 void computeFPS()
 {
     frames++;
@@ -364,6 +377,7 @@ void computeFPS()
     glutSetWindowTitle(fps);
 }
 
+// glutTimerFunc() event handler
 void timer(int)
 {
     sdkStartTimer(&fps_timer);
@@ -420,6 +434,7 @@ void drag(int x, int y)
     angle_y = start_angle_y + ((float)(y - start_y) / 300.0);
 }
 
+// Setup important event handlers for OpenGL
 void setup_opengl(int argc, char *argv[])
 {
     glutInit(&argc, argv);
@@ -453,7 +468,7 @@ int main(int argc, char *argv[])
 
     render_scene();
 
-    setup_opengl(argc, argv);
+    setup_opengl(0, argv);
 
     // clean up
     checkCudaErrors(cudaDeviceSynchronize());
