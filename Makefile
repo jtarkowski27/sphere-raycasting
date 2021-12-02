@@ -1,7 +1,7 @@
 CC=nvcc
 
 GLUT_LIBS=-lGL -lGLU -lglut
-CU_LIBS=-I"/usr/local/cuda/samples/common/inc"
+CU_LIBS=-I"/usr/local/cuda/samples/common/inc" -I"/opt/cuda/samples/common/inc"
 
 LDLIBS=${GLUT_LIBS} ${CU_LIBS}
 
