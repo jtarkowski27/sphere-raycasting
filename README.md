@@ -36,4 +36,4 @@ It is possible to execute raycasting algorithm purely on CPU. In order to do so 
 $ ./raycasting -cpu
 ```
 ### Usage
-When the program is running you can rotate the spheres by dragging mouse while lpm is pressed. If the mouse is dragged the same way but with shift pressed rotate will apply only to sources of light.
+When the program is running you can rotate the spheres by dragging mouse while lpm is pressed. If the mouse is dragged the same way but with shift pressed rotation will apply only to sources of light.
