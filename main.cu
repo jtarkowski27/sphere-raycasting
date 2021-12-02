@@ -479,9 +479,6 @@ void main_parameters(int argc, char *argv[])
 
             LIGHTS_COUNT = min(10, LIGHTS_COUNT);
             SPHERES_COUNT = min(100, SPHERES_COUNT);
-
-            WIDTH = 200;
-            HEIGHT = 100;
         }
         if (strncmp(argv[i], lights_str, sizeof(lights_str)) == 0 && i < argc - 1)
         {
