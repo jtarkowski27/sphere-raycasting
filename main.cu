@@ -149,7 +149,7 @@ void randomize_scene_variables()
 
     for (int i = 0; i < SPHERES_COUNT; i++)
     {
-        h_scene.spheres.radius[i] = rand_float(2, 6);
+        h_scene.spheres.radius[i] = rand_float(2, 4);
         h_scene.spheres.ka[i] = rand_float(0, 0.2);
         h_scene.spheres.kd[i] = rand_float(0, 0.03);
         h_scene.spheres.ks[i] = rand_float(0, 0.4);
