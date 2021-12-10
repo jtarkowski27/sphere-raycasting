@@ -7,7 +7,11 @@ struct s_lights
 {
     int n;
 
-    s_positions pos;
+    s_positions lpos;
+
+    s_colors im;
+    s_colors id;
+    s_colors is;
 };
 
 #endif

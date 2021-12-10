@@ -137,7 +137,7 @@ void assign_position(s_positions &positions, int i)
 // Generate random parameters of spheres and lights
 void randomize_scene_variables()
 {
-    d_scene.camera.origin = make_float3(-1000, 600, 700);
+    d_scene.camera.origin = make_float3(0, 100, 100);
 
     set_resolution(d_scene.camera, WIDTH, HEIGHT);
     look_at(d_scene.camera, 0, 0, 0);
@@ -149,7 +149,11 @@ void randomize_scene_variables()
 
     for (int i = 0; i < SPHERES_COUNT; i++)
     {
-        h_scene.spheres.r[i] = rand_float(2, 4);
+        h_scene.spheres.radius[i] = rand_float(2, 6);
+        h_scene.spheres.ka[i] = rand_float(0, 0.2);
+        h_scene.spheres.kd[i] = rand_float(0, 0.03);
+        h_scene.spheres.ks[i] = rand_float(0, 0.4);
+        h_scene.spheres.alpha[i] = (rand() % 400) + 10;
 
         assign_position(h_scene.spheres.pos, i);
 
@@ -160,7 +164,19 @@ void randomize_scene_variables()
 
     for (int i = 0; i < LIGHTS_COUNT; i++)
     {
-        assign_position(h_scene.lights.pos, i);
+        assign_position(h_scene.lights.lpos, i);
+
+        h_scene.lights.im.r[i] = rand_float(0, 1);
+        h_scene.lights.im.g[i] = rand_float(0, 1);
+        h_scene.lights.im.b[i] = rand_float(0, 1);
+
+        h_scene.lights.id.r[i] = rand_float(0, 1);
+        h_scene.lights.id.g[i] = rand_float(0, 1);
+        h_scene.lights.id.b[i] = rand_float(0, 1);
+
+        h_scene.lights.is.r[i] = rand_float(0, 1);
+        h_scene.lights.is.g[i] = rand_float(0, 1);
+        h_scene.lights.is.b[i] = rand_float(0, 1);
     }
 }
 
@@ -191,7 +207,12 @@ void memcpy_device_to_host()
 // Memcpy CPU->GPU
 void memcpy_host_to_device()
 {
-    checkCudaErrors(cudaMemcpy(d_scene.spheres.r, h_scene.spheres.r, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.spheres.radius, h_scene.spheres.radius, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
+
+    checkCudaErrors(cudaMemcpy(d_scene.spheres.ka, h_scene.spheres.ka, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.spheres.kd, h_scene.spheres.kd, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.spheres.ks, h_scene.spheres.ks, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.spheres.alpha, h_scene.spheres.alpha, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
 
     checkCudaErrors(cudaMemcpy(d_scene.spheres.pos.x, h_scene.spheres.pos.x, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(d_scene.spheres.pos.y, h_scene.spheres.pos.y, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
@@ -201,9 +222,21 @@ void memcpy_host_to_device()
     checkCudaErrors(cudaMemcpy(d_scene.spheres.color.g, h_scene.spheres.color.g, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(d_scene.spheres.color.b, h_scene.spheres.color.b, sizeof(float) * SPHERES_COUNT, cudaMemcpyHostToDevice));
 
-    checkCudaErrors(cudaMemcpy(d_scene.lights.pos.x, h_scene.lights.pos.x, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(d_scene.lights.pos.y, h_scene.lights.pos.y, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(d_scene.lights.pos.z, h_scene.lights.pos.z, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.lights.lpos.x, h_scene.lights.lpos.x, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.lights.lpos.y, h_scene.lights.lpos.y, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.lights.lpos.z, h_scene.lights.lpos.z, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+
+    checkCudaErrors(cudaMemcpy(d_scene.lights.im.r, h_scene.lights.im.r, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.lights.im.g, h_scene.lights.im.g, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.lights.im.b, h_scene.lights.im.b, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+
+    checkCudaErrors(cudaMemcpy(d_scene.lights.id.r, h_scene.lights.id.r, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.lights.id.g, h_scene.lights.id.g, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.lights.id.b, h_scene.lights.id.b, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+
+    checkCudaErrors(cudaMemcpy(d_scene.lights.is.r, h_scene.lights.is.r, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.lights.is.g, h_scene.lights.is.g, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_scene.lights.is.b, h_scene.lights.is.b, sizeof(float) * LIGHTS_COUNT, cudaMemcpyHostToDevice));
 }
 
 // Allocate memory for bitmap
@@ -232,12 +265,29 @@ void malloc_scene()
     h_scene.spheres.color.g = (float *)malloc(sizeof(float) * SPHERES_COUNT);
     h_scene.spheres.color.b = (float *)malloc(sizeof(float) * SPHERES_COUNT);
 
-    h_scene.spheres.r = (float *)malloc(sizeof(float) * SPHERES_COUNT);
+    h_scene.spheres.radius = (float *)malloc(sizeof(float) * SPHERES_COUNT);
+    h_scene.spheres.ka = (float *)malloc(sizeof(float) * SPHERES_COUNT);
+    h_scene.spheres.kd = (float *)malloc(sizeof(float) * SPHERES_COUNT);
+    h_scene.spheres.ks = (float *)malloc(sizeof(float) * SPHERES_COUNT);
+    h_scene.spheres.alpha = (float *)malloc(sizeof(float) * SPHERES_COUNT);
 
-    h_scene.lights.pos.x = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
-    h_scene.lights.pos.y = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
-    h_scene.lights.pos.z = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
-    h_scene.lights.pos.angle = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    h_scene.lights.lpos.x = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    h_scene.lights.lpos.y = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    h_scene.lights.lpos.z = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    
+    h_scene.lights.im.r = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    h_scene.lights.im.g = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    h_scene.lights.im.b = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    
+    h_scene.lights.is.r = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    h_scene.lights.is.g = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    h_scene.lights.is.b = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    
+    h_scene.lights.id.r = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    h_scene.lights.id.g = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+    h_scene.lights.id.b = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
+
+    h_scene.lights.lpos.angle = (float *)malloc(sizeof(float) * LIGHTS_COUNT);
 
     malloc_bitmap();
 
@@ -252,14 +302,31 @@ void malloc_scene()
     checkCudaErrors(cudaMalloc((void **)&d_scene.spheres.color.g, SPHERES_COUNT * sizeof(float)));
     checkCudaErrors(cudaMalloc((void **)&d_scene.spheres.color.b, SPHERES_COUNT * sizeof(float)));
 
-    checkCudaErrors(cudaMalloc((void **)&d_scene.spheres.r, SPHERES_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.spheres.radius, SPHERES_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.spheres.ka, SPHERES_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.spheres.kd, SPHERES_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.spheres.ks, SPHERES_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.spheres.alpha, SPHERES_COUNT * sizeof(float)));
 
     d_scene.lights.n = LIGHTS_COUNT;
     h_scene.lights.n = LIGHTS_COUNT;
 
-    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.pos.x, LIGHTS_COUNT * sizeof(float)));
-    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.pos.y, LIGHTS_COUNT * sizeof(float)));
-    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.pos.z, LIGHTS_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.lpos.x, LIGHTS_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.lpos.y, LIGHTS_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.lpos.z, LIGHTS_COUNT * sizeof(float)));
+
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.id.r, LIGHTS_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.id.g, LIGHTS_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.id.b, LIGHTS_COUNT * sizeof(float)));
+
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.im.r, LIGHTS_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.im.g, LIGHTS_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.im.b, LIGHTS_COUNT * sizeof(float)));
+
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.is.r, LIGHTS_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.is.g, LIGHTS_COUNT * sizeof(float)));
+    checkCudaErrors(cudaMalloc((void **)&d_scene.lights.is.b, LIGHTS_COUNT * sizeof(float)));
+
 }
 
 // Free allocated space
@@ -276,12 +343,29 @@ void free_scene()
     free(h_scene.spheres.color.g);
     free(h_scene.spheres.color.b);
 
-    free(h_scene.spheres.r);
+    free(h_scene.spheres.radius);
+    free(h_scene.spheres.ka);
+    free(h_scene.spheres.kd);
+    free(h_scene.spheres.ks);
+    free(h_scene.spheres.alpha);
 
-    free(h_scene.lights.pos.x);
-    free(h_scene.lights.pos.y);
-    free(h_scene.lights.pos.z);
-    free(h_scene.lights.pos.angle);
+    free(h_scene.lights.lpos.x);
+    free(h_scene.lights.lpos.y);
+    free(h_scene.lights.lpos.z);
+    
+    free(h_scene.lights.im.r);
+    free(h_scene.lights.im.g);
+    free(h_scene.lights.im.b);
+    
+    free(h_scene.lights.id.r);
+    free(h_scene.lights.id.g);
+    free(h_scene.lights.id.b);
+    
+    free(h_scene.lights.is.r);
+    free(h_scene.lights.is.g);
+    free(h_scene.lights.is.b);
+
+    free(h_scene.lights.lpos.angle);
 
     cudaFree(d_bitmap);
 
@@ -293,11 +377,27 @@ void free_scene()
     cudaFree(d_scene.spheres.color.g);
     cudaFree(d_scene.spheres.color.b);
 
-    cudaFree(d_scene.spheres.r);
+    cudaFree(d_scene.spheres.radius);
+    cudaFree(d_scene.spheres.ka);
+    cudaFree(d_scene.spheres.kd);
+    cudaFree(d_scene.spheres.ks);
+    cudaFree(d_scene.spheres.alpha);
 
-    cudaFree(d_scene.lights.pos.x);
-    cudaFree(d_scene.lights.pos.y);
-    cudaFree(d_scene.lights.pos.z);
+    cudaFree(d_scene.lights.lpos.x);
+    cudaFree(d_scene.lights.lpos.y);
+    cudaFree(d_scene.lights.lpos.z);
+
+    cudaFree(d_scene.lights.im.r);
+    cudaFree(d_scene.lights.im.g);
+    cudaFree(d_scene.lights.im.b);
+
+    cudaFree(d_scene.lights.id.r);
+    cudaFree(d_scene.lights.id.g);
+    cudaFree(d_scene.lights.id.b);
+
+    cudaFree(d_scene.lights.is.r);
+    cudaFree(d_scene.lights.is.g);
+    cudaFree(d_scene.lights.is.b);
 
     free(h_bitmap);
 }
@@ -395,7 +495,7 @@ void timer(int)
 
     if (shift_pressed)
     {
-        rotate_objects(&(h_scene.lights.pos), LIGHTS_COUNT, angle_diff);
+        rotate_objects(&(h_scene.lights.lpos), LIGHTS_COUNT, angle_diff);
     }
     else
     {
