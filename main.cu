@@ -40,8 +40,8 @@
 #endif
 #endif
 
-int WIDTH = 1100;
-int HEIGHT = 700;
+int WIDTH = 1600;
+int HEIGHT = 900;
 
 bool GPU_RENDER_ENABLED = true;
 
