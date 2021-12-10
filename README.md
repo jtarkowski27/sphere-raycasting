@@ -2,6 +2,8 @@
 
 ![Window screenshot](window1.png)
 
+Default raycasted scene that consists of 1000 spheres each with different (`kd`, `ks`, `ka` and `alpha` parameters) and 200 sources of lights.
+
 ## Description
 
 This project contains the source code for basic 3D [ray caster](https://pl.wikipedia.org/wiki/Ray_casting) of spheres with [Phong reflection model](https://en.wikipedia.org/wiki/Phong_reflection_model).
