@@ -1,4 +1,4 @@
-# Sphere Raycasting
+# Spheres raycasting with Phong shading method
 
 ![Window screenshot](window1.png)
 
