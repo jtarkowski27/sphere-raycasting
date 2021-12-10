@@ -1,6 +1,6 @@
 # Sphere Raycasting
 
-![Window screenshot](window.png)
+![Window screenshot](window1.png)
 
 ## Description
 
