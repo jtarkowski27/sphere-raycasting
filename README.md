@@ -2,7 +2,7 @@
 
 ![Window screenshot](window1.png)
 
-Default raycasted scene that consists of 1000 spheres (each with different `kd`, `ks`, `ka` and `alpha` parameters) and 200 sources of lights with diferent colors each.
+Default raycasted scene that consists of 1000 spheres (each with different `kd`, `ks`, `ka` and `alpha` parameters) and 200 sources of lights (each with diferent colors as well).
 
 ## Description
 
