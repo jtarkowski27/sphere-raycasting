@@ -27,15 +27,15 @@ $ make
 ```
 After succesfull compilation you should be able to run the program by simply calling:
 ```
-$ ./raycasting
+$ ./cudarc
 ```
 By default program will perform a pararell raycasting of scene with 1000 spheres and 200 light sources. If you want to specify certain parameters you need to add command-line arguments. For example command below will run a simulation of raycasting a scene with 2000 spheres and 300 light sources.
 ```
-$ ./raycasting -s 2000 -l 300
+$ ./cudarc -s 2000 -l 300
 ```
 It is possible to execute raycasting algorithm purely on CPU. In order to do so you need to add `-cpu` argument to your run command.
 ```
-$ ./raycasting -cpu
+$ ./cudarc -cpu
 ```
 ### Usage
 When the program is running you can rotate the spheres by dragging mouse while lpm is pressed. If the mouse is dragged the same way but with shift pressed, rotation will apply only to sources of light.
